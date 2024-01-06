@@ -1,0 +1,51 @@
+image0 = imread("gunrose.jpg");%输入图片
+imagegray = rgb2gray(image0);
+
+shuiyin0 = imread("水印.jpg");%输入水印
+shuiyin0 = rgb2gray(shuiyin0);
+shuiyin0 = imbinarize(shuiyin0,0.5);%二值化
+
+[M,N]=size(imagegray);%获得图片大小
+shuiyintiqu = zeros(M,N);
+outimage = zeros(M,N);%建立全0矩阵,含有水印的灰度图片
+weishu = 1; %嵌入位选取
+
+for i = 1:M           %灰度图片+水印图片所有值变成二进制
+    for j = 1:N
+        temp = bitget(imagegray(i,j),weishu);
+        outimage(i,j) = imagegray(i,j);
+        
+        %用水印替代最后一位所有像素
+        compare = shuiyin0(i,j);
+        if shuiyin0(i,j) > temp
+            outimage(i,j) = bitset(imagegray(i,j),weishu,1);
+        elseif shuiyin0(i,j) < temp
+            outimage(i,j) = bitset(imagegray(i,j),weishu,0);
+        elseif shuiyin0(i,j) == temp
+            outimage(i,j) = imagegray(i,j);
+        end
+
+    end
+end
+
+
+%水印提取
+for i=1:M
+    for j=1:N
+        if  bitget(outimage(i,j),weishu) == 1
+            shuiyintiqu(i,j) = 255;
+        else
+            shuiyintiqu(i,j) = 0;
+        end
+    end
+end
+
+
+subplot(221),imshow(imagegray);
+title("初始图")
+subplot(222),imshow(shuiyin0);
+title("水印图")
+subplot(223),imshow(uint8(outimage));
+title("嵌入水印后的图(最低位)")
+subplot(224),imshow(uint8(shuiyintiqu));
+title("提取的水印")
