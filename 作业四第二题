@@ -1,0 +1,56 @@
+%嵌入水印的程序代码
+M=256; %原图像长度
+N=32; %水印图像长度
+K=8;
+I=zeros(M,M);J=zeros(N,N);BLOCK = zeros(K,K);
+%显示原图像
+subplot(3,2,1);I=imread('gunrose.jpg');imshow(I);title('原始公开图像');
+%显示水印图像
+subplot(3,2,2);J=imread('水印.jpg');imshow(J);title('水印图像');
+%嵌入水印
+for p=1:N
+ for q=1:N
+  x=(p-1)*K+1;
+  y=(q-1)*K+1;
+  BLOCK=I(x:x+K-1,y:y+K-1);
+  BLOCK=dct2(BLOCK);
+  if J(p,q)==0
+    a=-1;
+  else
+    a=1;
+  end
+  BLOCK(1,1)=BLOCK(1,1)*(1+a*0.03);
+  BLOCK=idct2(BLOCK);
+  I(x:x+K-1,y:y+K-1)=BLOCK;
+ end
+end
+%显示嵌入水印后的图像
+subplot(3,2,3);imshow(I);title('嵌入水印后的图像');
+ 
+ 
+ 
+%从嵌入水印的图像中提取水印
+I=imread('gunrose.jpg');
+J=imread('水印.jpg');
+for p=1:N
+for q=1:N
+x=(p-1)*K+1;
+y=(q-1)*K+1;
+BLOCK1=I(x:x+K-1,y:y+K-1);
+BLOCK2=J(x:x+K-1,y:y+K-1);
+BLOCK1=idct2(BLOCK1);
+BLOCK2=idct2(BLOCK2);
+a=BLOCK2(1,1)/BLOCK1(1,1)-1;
+if a<0
+W(p,q)=0;
+else
+W(p,q)=1;
+end
+end
+end
+%显示提取的水印
+%subplot(3,2,4);
+%imshow(W);
+%title('从含水印图像中提取的水印');
+ 
+ 
